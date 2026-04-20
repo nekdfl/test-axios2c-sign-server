@@ -1,0 +1,9 @@
+<!--
+  Demo signing service for Axis2/C (SOAP over HTTP).
+-->
+<service name="demo_sign">
+    <parameter name="ServiceClass" locked="xsd:false">demo_sign</parameter>
+    <description>Demo document signing (SOAP)</description>
+    <operation name="getHealth"/>
+    <operation name="signDocument"/>
+</service>

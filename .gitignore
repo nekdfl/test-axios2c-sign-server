@@ -1,0 +1,91 @@
+# --- Сборка вне исходников (./scripts/build.sh) ---
+/build/
+
+# База компиляции для IDE (часто делают симлинк из build/ в корень)
+/compile_commands.json
+
+# --- Autotools / configure (корень и подкаталоги после autoreconf в исходниках) ---
+/autom4te.cache/
+/aclocal.m4
+/compile
+/config.guess
+/config.sub
+/configure
+/config.h
+/config.h.in
+/config.log
+/config.status
+/config.lt
+/depcomp
+/install-sh
+/ltmain.sh
+/missing
+/stamp-h1
+/libtool
+/ar-lib
+/test-driver
+
+Makefile
+**/Makefile
+Makefile.in
+**/Makefile.in
+**/.deps/
+**/.libs/
+**/.dirstamp
+*.la
+*.lo
+*.o
+*.a
+*.Plo
+*.Po
+*.Tpo
+
+# --- Локальный деплой Axis2 в дереве исходников (копии/symlink не из git) ---
+/source/backend/axis2_repo/lib
+/source/backend/axis2_repo/services/demo_sign/libdemo_sign.so
+/source/backend/axis2_repo/services/demo_sign/services.xml
+
+# Лог демо-сервера по умолчанию (-f axis2.log в корне при запуске из корня)
+/axis2.log
+
+# Устаревший каталог libs/ (логика перенесена в src/); игнорировать случайные остатки
+/libs/
+
+# --- Собранные бинарники (in-tree сборка в исходниках) ---
+/source/backend/src/demo-sign-server
+
+# --- IDE и редакторы ---
+.vscode/
+.idea/
+
+# --- Node/npm (случайные зависимости рядом с проектом) ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# --- ОС и мусор ---
+*~
+*.swp
+*.bak
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
+
+# Отладочные дампы
+core
+vgcore.*
+
+# --- кэш ---
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# --- VSCodium server artifacts (do not commit) ---
+scripts/linux/vsix/
+scripts/linux/*.vsix
+scripts/linux/vscodium-reh-*.tar.gz
+scripts/linux/vscodium-reh-web-*.tar.gz
+scripts/linux/vscodium-server-extensions*.txt

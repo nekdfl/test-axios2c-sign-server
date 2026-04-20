@@ -1,0 +1,47 @@
+<axisconfig name="Axis2/C">
+    <!-- Minimal standalone HTTP configuration for demo-sign-server (derived from Axis2/C 1.7 sample). -->
+
+    <parameter name="enableREST" locked="false">true</parameter>
+
+    <!-- ================================================= -->
+    <!-- Transport Ins -->
+    <!-- ================================================= -->
+
+    <transportReceiver name="http" class="axis2_http_receiver">
+        <parameter name="port" locked="false">8080</parameter>
+        <parameter name="exposeHeaders" locked="true">false</parameter>
+    </transportReceiver>
+
+    <!-- ================================================= -->
+    <!-- Transport Outs -->
+    <!-- ================================================= -->
+
+    <transportSender name="http" class="axis2_http_sender">
+        <parameter name="PROTOCOL" locked="false">HTTP/1.1</parameter>
+        <parameter name="xml-declaration" insert="false"/>
+    </transportSender>
+
+    <!-- ================================================= -->
+    <!-- Global Modules  -->
+    <!-- ================================================= -->
+    <!-- Addressing module not enabled: keeps deployment self-contained without modules/ tree. -->
+    <!--module ref="addressing"/-->
+
+    <!-- ================================================= -->
+    <!-- Phases  -->
+    <!-- ================================================= -->
+    <phaseOrder type="inflow">
+        <phase name="Transport"/>
+        <phase name="PreDispatch"/>
+        <phase name="Dispatch"/>
+        <phase name="PostDispatch"/>
+    </phaseOrder>
+    <phaseOrder type="outflow">
+        <phase name="MessageOut"/>
+    </phaseOrder>
+    <phaseOrder type="INfaultflow">
+    </phaseOrder>
+    <phaseOrder type="Outfaultflow">
+        <phase name="MessageOut"/>
+    </phaseOrder>
+</axisconfig>

@@ -1,0 +1,3 @@
+# clangd / VSCodium: база компиляции из out-of-tree каталога (см. ./scripts/build.sh + Bear).
+# Если используете DEMO_SIGN_BUILD_DIR не равный «build», поменяйте путь ниже.
+CompileDatabase: build

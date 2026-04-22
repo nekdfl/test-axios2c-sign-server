@@ -23,23 +23,9 @@
 | `vscodium_server_export_extensions.py` | Экспорт расширений из `~/.vscodium-server`. |
 | `vscodium_server_install_vsix.py` | Установка `.vsix` в vscodium-server. |
 
-Подробности и примеры — в `tech.md/environment.md`.
+Подробности и примеры — в `tech.md/environment.ubuntu.md` (Linux) и `tech.md/environment.windows.md` (Windows).
 
-### Windows (`scripts/windows/*.cmd`)
+### По платформам
 
-Тонкие обёртки для `cmd.exe`: вызывают `py -3` или `python` и передают аргументы в соответствующий `.py` в `scripts/`. Общая логика — в `_invoke_python.cmd`.
-
-### Linux / офлайн (`scripts/linux/`)
-
-**На Linux без Python:** сценарии **`*.sh`** — чистый **bash**, плюс **`curl`** и **`jq`**. Общая логика CLI vscodium-server — в **`_vscodium_server_common.sh`** (подключается через `source`).
-
-**Скачивание под Windows с Python:** **`*.cmd`** вызывают **`_invoke_python.cmd`** → `scripts/*.py` (то же назначение, что и `.sh`, но через Python).
-
-| Файл | Назначение |
-|------|------------|
-| `_invoke_python.cmd` | Запуск `.py` из `scripts/` (Windows). |
-| `_vscodium_server_common.sh` | Функции поиска `codium` CLI и замены `remote-cli/*` (для других `.sh`). |
-| `download-vscodium-server.cmd` / `.sh` | Архив `vscodium-reh-linux-*.tar.gz` с GitHub в `scripts/linux/` (переменные `ARCH`, `FLAVOR`, `OUTDIR`). |
-| `download-extensions.cmd` / `.sh` | VSIX с Open VSX по `vscodium-extensions.txt` → `vsix/`. |
-| `install-vscodium-server-extensions.sh` | Установка всех `*.vsix` через бинарник сервера (не Python). |
-| `export-vscodium-server-extensions.sh` | Список расширений: CLI или разбор `extensions.json` через `jq`. |
+- **Linux / офлайн (`scripts/linux/`)** — [`README.ubuntu.md`](README.ubuntu.md)
+- **Windows (`scripts/windows/*.cmd`)** — [`README.windows.md`](README.windows.md)

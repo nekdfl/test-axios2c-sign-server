@@ -1,35 +1,19 @@
-# demo-sign-server (Apache Axis2/C) + Python SOAP client
+# Сборка, запуск и тесты (Ubuntu / Debian, Linux)
 
-Демо-проект: **SOAP/HTTP бэкенд на C** на базе **Apache Axis2/C** (встроенный simple HTTP server), сервис «подписи» как **динамическая библиотека** + `services.xml`, сборка через **autotools**, плюс **Python-клиент** для вызовов SOAP и пример **Nginx**.
+Сборка демо-сервера **Axis2/C**, запуск и проверки **curl** / **Python-клиент** на Linux. Общее описание проекта и структура репозитория — в корневом [`README.md`](README.md).
 
-## Что внутри
+---
 
-- **`scripts/`** — `build.py`, `clean.py`, `run.py` (сборка, очистка, запуск; из корня: `python3 scripts/…`), плюс Python-утилиты VSCodium/Open VSX (`vscodium_*.py`, `openvsx_download_vsix.py`).
-- **`scripts/windows/`** — пример списка расширений `vscodium-extensions.txt` (и при необходимости каталог `vsix/`); сами команды — из корня через `python3 scripts/…`.
-- **`scripts/linux/`** — **`*.sh`** (bash, `curl`, `jq`): скачивание сервера/VSIX и офлайн-установка; **`*.cmd`** для тех же задач под Windows через Python; см. `scripts/README.md`.
-- **`source/backend/`** — исходники C и Axis2: `src/`, `include/`, `services/`, шаблон **`axis2_repo/`**.
-- **`source/frontend/client/`** — Python-скрипт для вызовов SOAP (`urllib`, без сторонних пакетов).
-- `source/backend/src/main.c` — точка входа (адаптирован из `http_server_main.c` Axis2/C, лицензия Apache 2.0).
-- `source/backend/services/demo_sign/` — сервис `demo_sign` (`libdemo_sign.so`, `services.xml`, OM/SOAP логика).
-- `source/backend/include/demosign.h` — публичный API подписи в стиле WinAPI (`BOOL`/`DWORD`/`WINAPI`, только POSIX в реализации).
-- `source/backend/include/demoposix.h` — обёртки POSIX (`sigaction`) в том же стиле именования.
-- `source/backend/src/demosign.c`, `source/backend/src/demoposix.c` — реализации (линкуются в `libdemo_sign.so` и в `demo-sign-server` соответственно).
-- `source/backend/axis2_repo/axis2.xml` — минимальный `axis2.xml`; после `make` в `build/axis2_repo/services/demo_sign/` появляются копии `services.xml` и `libdemo_sign.so`.
-- **`tech.md/nginx-reverse-proxy-example.md`** — пример конфигурации Nginx как reverse-proxy на порт Axis2.
-- `AUTOTOOLS.md` — назначение файлов autotools.
-- `tech.md/` — онбординг по Axis2/C и структуре репозитория.
+## Документация по ОС
 
-----
+- **Сборочное окружение и VSCodium (подробно)**: [`tech.md/environment.ubuntu.md`](tech.md/environment.ubuntu.md)
+- **Онбординг по Axis2/C**: [`tech.md/README.md`](tech.md/README.md)
+- **Указатель environment**: [`tech.md/environment.md`](tech.md/environment.md)
+- **Git**: `git@github.com:nekdfl/test-axios2c-sign-server.git`
 
-## Компиляция проекта
+---
 
-## Документация
-
-- **Сборочное окружение и VSCodium (Ubuntu 24.04)**: `tech.md/environment.md`
-- **Онбординг по Axis2/C и проекту**: `tech.md/README.md`
-- **Git-репозиторий**: `git@github.com:nekdfl/test-axios2c-sign-server.git`
-
-### Зависимости (Ubuntu / Debian)
+## Зависимости (Ubuntu / Debian)
 
 Инструменты сборки и заголовки (для Axis2/C из исходников и для линковки с libxml2 при необходимости):
 
@@ -56,7 +40,9 @@ sudo apt-get install -y \
 LDFLAGS='-L/usr/lib/x86_64-linux-gnu' ./configure --with-axis2c="$AXIS2C_HOME"
 ```
 
-### Сборка скриптом
+---
+
+## Сборка скриптом
 
 Из корня репозитория:
 
@@ -67,7 +53,9 @@ python3 scripts/build.py
 
 `scripts/build.py` выполняет: `autoreconf -fi` в корне исходников → `configure` и `make` **в каталоге `build/`** (объекты и генерируемые Makefile’ы не попадают в `source/backend/...`). Каталог сборки можно задать переменной **`DEMO_SIGN_BUILD_DIR`**.
 
-### Сборка вручную
+---
+
+## Сборка вручную
 
 ```bash
 autoreconf -fi
@@ -79,7 +67,9 @@ make -j"$(nproc)"
 
 Описание `configure.ac` и `Makefile.am` — в **`AUTOTOOLS.md`**.
 
-### IDE (VSCodium / clangd)
+---
+
+## IDE (VSCodium / clangd)
 
 Минимум:
 
@@ -87,9 +77,11 @@ make -j"$(nproc)"
 - Выполните **`python3 scripts/build.py`**; при наличии **Bear** появится **`build/compile_commands.json`**.
 - Файл **`.clangd`** в корне указывает clangd на каталог базы (`CompileDatabase: build`).
 
-Подробный гайд по VSCodium/расширениям/офлайн‑установке VSIX — в `tech.md/environment.md`.
+Подробный гайд по VSCodium и офлайн‑VSIX на Linux — в **`tech.md/environment.ubuntu.md`**.
 
-### Очистка
+---
+
+## Очистка
 
 ```bash
 python3 scripts/clean.py
@@ -97,7 +89,7 @@ python3 scripts/clean.py
 
 Удаляет каталог **`build/`** (если был), затем сгенерированные в корне `configure`, `Makefile*`, объекты, кэш autotools и копии сервиса в **`source/backend/axis2_repo/`** (если остались от старой in-tree сборки).
 
-----
+---
 
 ## Запуск сервера
 
@@ -109,7 +101,7 @@ python3 scripts/clean.py
 
 Если не указать `-r`, сервер по умолчанию ищет `./axis2_repo` от текущего каталога; в **`scripts/run.py`** по умолчанию подставляется **`build/axis2_repo`**, если он есть. Также **`DEMO_SIGN_AXIS2_REPO`**, затем **`AXIS2C_HOME`** для путей репозитория в `main.c`.
 
-----
+---
 
 ## Тестирование
 
@@ -145,46 +137,12 @@ cd source/frontend/client
 # или: python3 demo.py http://127.0.0.1:8080
 ```
 
-----
+---
 
 ## Nginx
 
-Пример конфигурации см. **`tech.md/nginx-reverse-proxy-example.md`**: прокси на Axis2 (по умолчанию `http://127.0.0.1:8080`), пути вида `/services/demo_sign` проксируются как есть.
+Пример конфигурации: [`tech.md/nginx-reverse-proxy-example.ubuntu.md`](tech.md/nginx-reverse-proxy-example.ubuntu.md) — прокси на Axis2 (по умолчанию `http://127.0.0.1:8080`), пути вида `/services/demo_sign` проксируются как есть.
 
-----
+---
 
-## Онбординг по Axis2/C
-
-См. каталог **`tech.md/`** (файлы `README.md`, `01-…` … `04-…`).
-
-----
-
-## VSCodium и офлайн VSIX (Python)
-
-Из **корня** репозитория, с **Python 3** (только стандартная библиотека). Пример списка: `scripts/windows/vscodium-extensions.txt`.
-
-### Скачать последний релиз VSCodium для Windows (zip + установщики)
-
-```bash
-python3 scripts/vscodium_desktop_download.py --arch x64 --outdir .
-```
-
-### Экспортировать список установленных расширений (десктоп)
-
-```bash
-python3 scripts/vscodium_desktop_export_extensions.py vscodium-extensions.txt
-```
-
-Вторым аргументом можно передать путь к `VSCodium.exe`, если CLI не в `PATH`.
-
-### Скачать VSIX по списку (Open VSX)
-
-```bash
-python3 scripts/openvsx_download_vsix.py scripts/windows/vscodium-extensions.txt vsix
-```
-
-### Установить VSIX из каталога
-
-```bash
-python3 scripts/vscodium_desktop_install_vsix.py vsix
-```
+На хосте **Windows** (без WSL) для демо-сервера см. [`README.windows.md`](README.windows.md) и [`tech.md/environment.windows.md`](tech.md/environment.windows.md).

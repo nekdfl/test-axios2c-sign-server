@@ -19,7 +19,7 @@
 | `source/backend/services/demo_sign/Makefile.am` | Сервис Axis2: `libdemo_sign.la` (в т.ч. `$(top_srcdir)/source/backend/src/demosign.c`); `all-local` копирует `axis2.xml` в `$(top_builddir)/axis2_repo/` и сервис в `$(top_builddir)/axis2_repo/services/demo_sign/` (при сборке в `build/` всё оказывается под `build/`). |
 | `source/backend/src/Makefile.am` | Бинарник `demo-sign-server` (`main.c`, `demoposix.c`), флаги и линковка с Axis2/C. |
 
-Пример конфигурации **Nginx** для reverse-proxy описан в **`tech.md/nginx-reverse-proxy-example.md`** (не участвует в Automake).
+Пример конфигурации **Nginx** для reverse-proxy описан в **`tech.md/nginx-reverse-proxy-example.md`** (указатель на `*.ubuntu.md` / `*.windows.md`; не участвует в Automake).
 
 ## Полезные команды
 
@@ -28,4 +28,4 @@
 - Вручную вне дерева исходников: `mkdir -p build && cd build && ../configure --with-axis2c="$AXIS2C_HOME" && make`
 - Очистка: **`python3 scripts/clean.py`** (в т.ч. удаление `build/`) или `make distclean` внутри `build/`
 
-Подробнее про установку зависимостей и полный цикл — в разделе **«Компиляция проекта»** в `README.md`.
+Подробнее про установку зависимостей и полный цикл — в **`README.ubuntu.md`** (сборка на Linux).

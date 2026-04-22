@@ -7,7 +7,7 @@
 - `**source/backend/axis2_repo/axis2.xml**` (в исходниках) — минимальный конфиг; при `make` копия попадает в `**build/axis2_repo/axis2.xml**` вместе с задеплоенным сервисом.
 - `**source/backend/src/demosign.c**`, `**source/backend/src/demoposix.c**` — код без Axis2: подпись и обёртки POSIX (`sigaction`).
 - `**source/backend/include/demosign.h**`, `**source/backend/include/demoposix.h**` — публичные заголовки, ставятся при `make install`.
-- `**tech.md/nginx-reverse-proxy-example.md**` — пример reverse-proxy для Nginx.
+- `**tech.md/nginx-reverse-proxy-example.md**` — указатель на примеры Nginx по ОС (`nginx-reverse-proxy-example.*.md`).
 - `**source/frontend/client/**` — Python (`urllib`) для ручной проверки SOAP.
 
 ## Куда смотреть при баге
@@ -24,5 +24,5 @@
 
 ## Документация рядом
 
-- `**README.md**` — установка зависимостей, сборка, запуск, curl, клиент.
+- `**README.md**` — входная точка; **Linux** — `README.ubuntu.md`, **Windows** — `README.windows.md`.
 - `**AUTOTOOLS.md**` — роль `Makefile.am` в каждом каталоге.

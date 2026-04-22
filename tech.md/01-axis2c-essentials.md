@@ -21,4 +21,4 @@
 
 ## Репозиторий (`-r` / `DEMO_SIGN_AXIS2_REPO`)
 
-Путь к корню деплоя: там **`axis2.xml`** и **`services/<имя>/`**. После `make` (обычно из каталога **`build/`**) копии лежат в **`build/axis2_repo/`** — см. **`./scripts/build.sh`** и **`./scripts/run.sh`**.
+Путь к корню деплоя: там **`axis2.xml`** и **`services/<имя>/`**. После `make` (обычно из каталога **`build/`**) копии лежат в **`build/axis2_repo/`** — см. **`python3 scripts/build.py`** / **`python3 scripts/run.py`** (основной репозиторий) или **`./scripts/build.sh`** / **`./scripts/run.sh`** (альтернативный контур, см. часть II в `environment.ubuntu.md`).

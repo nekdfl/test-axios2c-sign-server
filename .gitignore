@@ -1,4 +1,4 @@
-# --- Сборка вне исходников (./scripts/build.sh) ---
+# --- Сборка вне исходников (python3 scripts/build.py) ---
 /build/
 
 # База компиляции для IDE (часто делают симлинк из build/ в корень)
@@ -85,7 +85,13 @@ __pycache__/
 
 # --- VSCodium server artifacts (do not commit) ---
 scripts/linux/vsix/
+scripts/linux/vscodium-extensions.txt
 scripts/linux/*.vsix
 scripts/linux/vscodium-reh-*.tar.gz
 scripts/linux/vscodium-reh-web-*.tar.gz
 scripts/linux/vscodium-server-extensions*.txt
+# VSCodium desktop (Windows): скачанные инсталляторы, zip, список расширений, VSIX
+scripts/windows/vscodium-extensions.txt
+scripts/windows/vsix/
+scripts/windows/VSCodium*.exe
+scripts/windows/VSCodium-win32-*.zip

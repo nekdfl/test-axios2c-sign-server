@@ -1,0 +1,4 @@
+# Shell entrypoints for offline Linux host: LF for shebang
+scripts/linux/*.sh text eol=lf
+# Download wrappers for Windows cmd.exe
+scripts/linux/*.cmd text eol=crlf

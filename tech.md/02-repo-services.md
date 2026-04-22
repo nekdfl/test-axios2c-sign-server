@@ -18,7 +18,7 @@
 ## Ось сборки
 
 1. `**libdemo_sign**` (модуль сервиса) собирается из `demo_sign_skeleton.c`, `demo_sign_svc.c` и `**$(top_srcdir)/source/backend/src/demosign.c**`.
-2. `all-local` копирует `axis2.xml` в `**$(top_builddir)/axis2_repo/**`, затем `libdemo_sign.so` и `services.xml` в `**$(top_builddir)/axis2_repo/services/demo_sign/**` (при типовой сборке `./scripts/build.sh` это каталог `**build/axis2_repo/...**`).
+2. `all-local` копирует `axis2.xml` в `**$(top_builddir)/axis2_repo/**`, затем `libdemo_sign.so` и `services.xml` в `**$(top_builddir)/axis2_repo/services/demo_sign/**` (при типовой сборке `python3 scripts/build.py` или `./scripts/build.sh` это каталог `**build/axis2_repo/...**`).
 
 ## Клиент
 

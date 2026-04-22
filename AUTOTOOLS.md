@@ -24,8 +24,8 @@
 ## Полезные команды
 
 - Регенерация скриптов сборки в корне исходников: `autoreconf -fi`
-- Типовая сборка из репозитория: **`./scripts/build.sh`** (configure + make в **`build/`**; при наличии **`bear`** — перехват компиляции и запись **`build/compile_commands.json`**)
+- Типовая сборка из репозитория: **`python3 scripts/build.py`** (configure + make в **`build/`**; при наличии **`bear`** — перехват компиляции и запись **`build/compile_commands.json`**)
 - Вручную вне дерева исходников: `mkdir -p build && cd build && ../configure --with-axis2c="$AXIS2C_HOME" && make`
-- Очистка: **`./scripts/clean.sh`** (в т.ч. `rm -rf build/`) или `make distclean` внутри `build/`
+- Очистка: **`python3 scripts/clean.py`** (в т.ч. удаление `build/`) или `make distclean` внутри `build/`
 
 Подробнее про установку зависимостей и полный цикл — в разделе **«Компиляция проекта»** в `README.md`.

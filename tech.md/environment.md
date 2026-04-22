@@ -10,10 +10,10 @@
 2. [Пакеты APT](#2-пакеты-apt)
 3. [Apache Axis2/C: установка префикса](#3-apache-axis2c-установка-префикса)
 4. [Клонирование проекта и первый запуск сборки](#4-клонирование-проекта-и-первый-запуск-сборки)
-5. [Скрипт `scripts/build.sh](#5-скрипт-scriptsbuildsh)`
-6. [Скрипт `scripts/run.sh](#6-скрипт-scriptsrunsh)`
-7. [Скрипт `scripts/clean.sh](#7-скрипт-scriptscleansh)`
-8. [VSCodium: расширения и настройки для C](#8-vscodium-расширения-и-настройки-для-c) (скрипты `**scripts/linux/`** и `**scripts/windows/`** для VSIX и релизов — см. подраздел ниже в том же разделе)
+5. [Скрипт `scripts/build.py`](#5-скрипт-scriptsbuildpy)
+6. [Скрипт `scripts/run.py`](#6-скрипт-scriptsrunpy)
+7. [Скрипт `scripts/clean.py`](#7-скрипт-scriptscleanpy)
+8. [VSCodium: расширения и настройки для C](#8-vscodium-расширения-и-настройки-для-c) (Python-скрипты в `**scripts/`** — см. подраздел ниже в том же разделе)
 9. [Проверочный чеклист](#9-проверочный-чеклист)
 
 ---
@@ -22,8 +22,8 @@
 
 1. Обновить индекс пакетов и установить зависимости из [раздела 2](#2-пакеты-apt).
 2. Собрать и установить **Apache Axis2/C** в каталог-префикс (например `$HOME/axis2c-built`), см. [раздел 3](#3-apache-axis2c-установка-префикса).
-3. Клонировать этот репозиторий, выставить права на скрипты, задать `AXIS2C_HOME`, выполнить `./scripts/build.sh`.
-4. Один раз запустить `./scripts/run.sh` (или убедиться в симлинке `axis2_repo/lib`) — см. [раздел 6](#6-скрипт-scriptsrunsh).
+3. Клонировать этот репозиторий, задать `AXIS2C_HOME`, выполнить `python3 scripts/build.py`.
+4. Один раз запустить `python3 scripts/run.py` (или убедиться в симлинке `axis2_repo/lib`) — см. [раздел 6](#6-скрипт-scriptsrunpy).
 5. Настроить **VSCodium** по [разделу 8](#8-vscodium-расширения-и-настройки-для-c).
 
 ---
@@ -100,18 +100,17 @@ LDFLAGS='-L/usr/lib/x86_64-linux-gnu' ./configure --with-axis2c="$AXIS2C_HOME"
 ```bash
 git clone git@github.com:nekdfl/test-axios2c-sign-server.git demo-sign-server
 cd demo-sign-server
-chmod +x scripts/build.sh scripts/clean.sh scripts/run.sh
 export AXIS2C_HOME="$HOME/axis2c-built"   # ваш префикс Axis2/C
-./scripts/build.sh
+python3 scripts/build.py
 ```
 
 Успешный результат: появляются `**build/source/backend/src/demo-sign-server**` и дерево `**build/axis2_repo/**` (включая копию `**axis2.xml**` и сервис `**demo_sign**`).
 
-Запуск сервера удобнее через `**./scripts/run.sh**` (см. [раздел 6](#6-скрипт-scriptsrunsh)).
+Запуск сервера удобнее через `**python3 scripts/run.py**` (см. [раздел 6](#6-скрипт-scriptsrunpy)).
 
 ---
 
-## 5. Скрипт `scripts/build.sh`
+## 5. Скрипт `scripts/build.py`
 
 **Назначение:** одна команда для полного цикла **autoreconf → configure → make** в **отдельном каталоге сборки** (по умолчанию `**build/`** в корне проекта).
 
@@ -120,21 +119,21 @@ export AXIS2C_HOME="$HOME/axis2c-built"   # ваш префикс Axis2/C
 1. `**autoreconf -fi`** в корне исходников — генерируются `**configure`** и `**Makefile.in`** рядом с `**Makefile.am**` (эти файлы обычно не коммитятся).
 2. Поиск префикса Axis2/C с заголовком `**axis2_http_server.h**`: первый аргумент скрипта (если это каталог с заголовками), затем `**$AXIS2C_HOME**`, затем перебор типичных путей (`$HOME/axis2c-built`, `$HOME/axis2c`, `/usr/local/axis2c`, `/opt/axis2c`).
 3. `**mkdir**` каталога сборки (`**DEMO_SIGN_BUILD_DIR**`, по умолчанию `**build/**`).
-4. Запуск `**../configure**` из этого каталога с `**--with-axis2c=...**` и любыми дополнительными аргументами, переданными в `**./scripts/build.sh**` после префикса Axis2 (если есть).
+4. Запуск `**../configure**` из этого каталога с `**--with-axis2c=...**` и любыми дополнительными аргументами, переданными в `**python3 scripts/build.py**` после префикса Axis2 (если есть).
 5. `**make**` в каталоге сборки. Если установлен `**bear**`, сборка выполняется под `**bear**` и создаётся `**build/compile_commands.json**` для IDE. Если после инкрементальной сборки файл пустой (`**[]**`), скрипт выполняет `**make clean**` и повторную сборку под Bear — иначе clangd не получает команд компиляции.
 
 Примеры:
 
 ```bash
-./scripts/build.sh
-AXIS2C_HOME="$HOME/axis2c-built" ./scripts/build.sh
-./scripts/build.sh "$HOME/axis2c-built" --prefix=/usr/local
-DEMO_SIGN_BUILD_DIR="$PWD/out" ./scripts/build.sh
+python3 scripts/build.py
+AXIS2C_HOME="$HOME/axis2c-built" python3 scripts/build.py
+python3 scripts/build.py "$HOME/axis2c-built" --prefix=/usr/local
+DEMO_SIGN_BUILD_DIR="$PWD/out" python3 scripts/build.py
 ```
 
 ---
 
-## 6. Скрипт `scripts/run.sh`
+## 6. Скрипт `scripts/run.py`
 
 **Назначение:** запуск `**demo-sign-server`** с разумными значениями по умолчанию.
 
@@ -148,14 +147,14 @@ DEMO_SIGN_BUILD_DIR="$PWD/out" ./scripts/build.sh
 Примеры:
 
 ```bash
-./scripts/run.sh
-PORT=9090 ./scripts/run.sh
-DEMO_SIGN_AXIS2_REPO=/path/to/repo ./scripts/run.sh -l 3
+python3 scripts/run.py
+PORT=9090 python3 scripts/run.py
+DEMO_SIGN_AXIS2_REPO=/path/to/repo python3 scripts/run.py -l 3
 ```
 
 ---
 
-## 7. Скрипт `scripts/clean.sh`
+## 7. Скрипт `scripts/clean.py`
 
 **Назначение:** убрать локально сгенерированные артефакты Autotools и сборки, **не удаляя исходники** `.c`/`.h`/`.md`.
 
@@ -168,7 +167,7 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo ./scripts/run.sh -l 3
 5. Удаление каталогов `**.deps**` / `**.libs**`, объектных и libtool-файлов (`***.o**`, `***.lo**`, `***.la**`, `***.a**`).
 6. Удаление копии `**source/backend/axis2_repo/services/demo_sign/libdemo_sign.so**` в исходном дереве (если осталась от старой схемы).
 
-После `**./scripts/clean.sh**` снова нужны `**./scripts/build.sh**` (или ручной **autoreconf** + **configure** + **make**).
+После `**python3 scripts/clean.py**` снова нужны `**python3 scripts/build.py**` (или ручной **autoreconf** + **configure** + **make**).
 
 ---
 
@@ -185,7 +184,7 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo ./scripts/run.sh -l 3
 
 ### База компиляции и `.clangd`
 
-1. Установите `**bear`** (раздел 2) и выполните `**./scripts/build.sh`**, чтобы в `**build/`** появился непустой `**compile_commands.json**`.
+1. Установите `**bear`** (раздел 2) и выполните `**python3 scripts/build.py`**, чтобы в `**build/`** появился непустой `**compile_commands.json**`.
 2. В корне репозитория файл `**.clangd**` содержит указание каталога базы:
   ```yaml
    CompileDatabase: build
@@ -201,58 +200,73 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo ./scripts/run.sh -l 3
 
 ### Переменные окружения в терминале VSCodium
 
-Чтобы `**scripts/run.sh`** и поиск Axis2 находили префикс, в `**~/.bashrc`** или в настройках терминала IDE задайте:
+Чтобы `**scripts/run.py`** и поиск Axis2 находили префикс, в `**~/.bashrc`** или в настройках терминала IDE задайте:
 
 ```bash
 export AXIS2C_HOME="$HOME/axis2c-built"
 ```
 
-### Готовые скрипты в репозитории (`scripts/linux`, `scripts/windows`)
+### Готовые скрипты в репозитории (`scripts/`)
 
-Ниже — сценарии для **экспорта списка расширений**, **скачивания VSIX с Open VSX**, **офлайн-установки** и **загрузки актуального релиза VSCodium** с GitHub. Пути указаны **относительно корня клонированного репозитория**. На Windows используйте **PowerShell**; если выполнение сценариев запрещено политикой, разрешите для текущего пользователя: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+Ниже — сценарии на **Python 3** (только стандартная библиотека): **экспорт списка расширений**, **скачивание VSIX с Open VSX**, **офлайн-установка**, **загрузка VSCodium** (десктоп Windows и **vscodium-server** для Linux). Запуск из **корня** репозитория: `python3 scripts/<имя>.py …` (на Windows подойдёт и `py -3`).
 
-**Linux (`scripts/linux/`)**
-
-
-| Файл                                   | Назначение                                                                                                                                                                                                                                                                                     |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vscodium-server-download.sh`          | Скачивает архив **vscodium-server** из GitHub Releases: `**vscodium-reh-linux-${ARCH}-*.tar.gz`** (`FLAVOR=reh`, по умолчанию) или web-вариант `**vscodium-reh-web-linux-${ARCH}-*.tar.gz`** (`FLAVOR=reh-web`). Переменные: `**ARCH`** (`x64`, `arm64`, `armhf`), `**FLAVOR`**, `**OUTDIR**`. |
-| `vscodium-server-export-extensions.sh` | Экспортирует расширения из `**~/.vscodium-server**`: сначала через `**SERVER_CLI**` (если найден), иначе из `**extensions.json**`; результат в `**OUT**` (по умолчанию `vscodium-server-extensions.txt`).                                                                                      |
-| `vscodium-server-download-vsix.sh`     | Аргументы: `**[список]**` `**[каталог_vsix]**` (по умолчанию `vscodium-server-extensions.txt` и `vsix`). Python 3 из состава системы; разбор id: первый символ `**.**` делит namespace и имя расширения для API Open VSX.                                                                      |
-| `vscodium-server-install-vsix.sh`      | Устанавливает все `***.vsix`** в `**~/.vscodium-server/extensions`** через server CLI. Переменные: `**VSIX_DIR`**, `**SERVER_ROOT**`, `**SERVER_CLI**`.                                                                                                                                        |
+**Linux: vscodium-server (удалённая машина / VM)**
 
 
-Примеры из корня репозитория:
+| Файл | Назначение |
+| ---- | ---------- |
+| `scripts/vscodium_server_download.py` | Скачивает архив **vscodium-server** с GitHub: `vscodium-reh-linux-${ARCH}-*.tar.gz` или `vscodium-reh-web-linux-…`. Аргументы: `--arch`, `--flavor` (`reh` или `reh-web`), `--outdir`; те же значения можно задать переменными `ARCH`, `FLAVOR`, `OUTDIR`. |
+| `scripts/vscodium_server_export_extensions.py` | Экспорт из `~/.vscodium-server`: CLI или `extensions.json` → файл (`--out`, по умолчанию `vscodium-server-extensions.txt`). Переменные: `OUT`, `SERVER_ROOT`, `SERVER_CLI`, `SERVER_EXTENSIONS_JSON`. |
+| `scripts/openvsx_download_vsix.py` | Список VSIX с Open VSX: аргументы `[файл_списка] [каталог_vsix]` (по умолчанию `vscodium-server-extensions.txt` и `vsix`). |
+| `scripts/vscodium_server_install_vsix.py` | Установка всех `*.vsix` в `~/.vscodium-server/extensions` через server CLI. Переменные / флаги: `VSIX_DIR`, `SERVER_ROOT`, `SERVER_CLI`. |
+
+Для `--server-cli` в обычной консоли/SSH используйте **`bin/<commit>/bin/codium`** (или **`code`**), а не **`bin/.../remote-cli/...`** — иначе возможно сообщение *«Command is only available in WSL or inside a Visual Studio Code terminal»*.
+
+Примеры:
 
 ```bash
-chmod +x scripts/linux/*.sh   # один раз
-FLAVOR=reh ARCH=x64 OUTDIR="$HOME/dist" ./scripts/linux/vscodium-server-download.sh
-OUT=my-ext.txt ./scripts/linux/vscodium-server-export-extensions.sh
-./scripts/linux/vscodium-server-download-vsix.sh vscodium-server-extensions.txt vsix
-VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
+FLAVOR=reh ARCH=x64 OUTDIR="$HOME/dist" python3 scripts/vscodium_server_download.py
+OUT=my-ext.txt python3 scripts/vscodium_server_export_extensions.py
+python3 scripts/openvsx_download_vsix.py vscodium-server-extensions.txt vsix
+VSIX_DIR=vsix python3 scripts/vscodium_server_install_vsix.py
 ```
 
-**Windows (`scripts/windows/`)**
+**Офлайн:** на машине **с интернетом** скачайте архив сервера и VSIX в **`scripts/linux/`**: под **Linux** — **`scripts/linux/download-vscodium-server.sh`** и **`download-extensions.sh`** (bash, нужны **`curl`** и **`jq`**); под **Windows** — **`scripts/linux/*.cmd`** и Python 3. Затем скопируйте репозиторий на изолированный Linux и выполните установку **`install-vscodium-server-extensions.sh`** (без Python). Подробности — `scripts/README.md`.
 
+```bash
+# машина с интернетом — Linux:
+#   ./scripts/linux/download-vscodium-server.sh
+#   ./scripts/linux/download-extensions.sh
+# или Windows + Python:
+#   scripts\linux\download-vscodium-server.cmd
+#   scripts\linux\download-extensions.cmd
 
-| Файл                      | Назначение                                                                                                                                                |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `download-vscodium.ps1`   | Последний релиз: `**VSCodium-win32-${Arch}-*.zip`** (`-Arch x64` или `arm64`, `-OutDir`).                                                                 |
-| `export-extensions.ps1`   | Список расширений в `**-OutFile`** (по умолчанию `vscodium-server-extensions.txt`). Поиск `VSCodium.exe` в PATH или типичных каталогах; иначе `**-Cli`**. |
-| `download-extensions.ps1` | `**-List`** и `**-OutDir**` (`vsix` по умолчанию); обращение к Open VSX, тот же разбор id (**первый** `**.`**).                                           |
-| `install-extensions.ps1`  | Все `***.vsix`** из `**-VsixDir`**; при необходимости `**-Cli`** к `VSCodium.exe`.                                                                        |
-
-
-Примеры из корня репозитория (PowerShell):
-
-```powershell
-.\scripts\windows\download-vscodium.ps1 -Arch x64 -OutDir .
-.\scripts\windows\export-extensions.ps1 -OutFile vscodium-server-extensions.txt
-.\scripts\windows\download-extensions.ps1 -List vscodium-server-extensions.txt -OutDir vsix
-.\scripts\windows\install-extensions.ps1 -VsixDir vsix
+# офлайн Linux-хост — распаковка vscodium-server, затем:
+./scripts/linux/install-vscodium-server-extensions.sh
 ```
 
-**Замечание по платформам:** VSIX, скачанные под **Windows**, не переносите на **Linux** (и наоборот), если в расширении есть нативные двоичные файлы — ставьте пакеты, собранные для целевой ОС и архитектуры (на Linux для VM используйте сценарии `**scripts/linux`**).
+**Windows: VSCodium (десктоп)**
+
+
+| Файл | Назначение |
+| ---- | ---------- |
+| `scripts/vscodium_desktop_download.py` | Последний релиз: portable **ZIP**, **Setup.exe**, **UserSetup.exe**. Флаги: `--arch` (`x64` или `arm64`), `--outdir`. |
+| `scripts/vscodium_desktop_export_extensions.py` | Список расширений в файл; опционально путь к `VSCodium.exe` вторым аргументом. |
+| `scripts/openvsx_download_vsix.py` | Тот же сценарий VSIX; по умолчанию список `vscodium-extensions.txt` в `scripts/windows/` — укажите путь явно при необходимости. |
+| `scripts/vscodium_desktop_install_vsix.py` | Установка всех `*.vsix` из каталога через CLI десктопа. |
+
+Примеры:
+
+```bash
+python3 scripts/vscodium_desktop_download.py --arch x64 --outdir .
+python3 scripts/vscodium_desktop_export_extensions.py vscodium-extensions.txt
+python3 scripts/openvsx_download_vsix.py scripts/windows/vscodium-extensions.txt vsix
+python3 scripts/vscodium_desktop_install_vsix.py vsix
+```
+
+Общая логика поиска CLI для десктопа — в `scripts/vscodium_common.py`.
+
+**Замечание по платформам:** VSIX, скачанные под **Windows**, не переносите на **Linux** (и наоборот), если в расширении есть нативные двоичные файлы — ставьте пакеты под целевую ОС и архитектуру.
 
 ### Снимок установленных расширений (узел разработки)
 
@@ -298,14 +312,14 @@ VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
 | `wholroyd.jinja`                             | 0.0.8     |
 
 
-**Экспорт актуального списка на машине с интернетом** — для Linux VM используйте `**scripts/linux/vscodium-server-export-extensions.sh`** (экспорт именно из `~/.vscodium-server/extensions`). Для Windows host — `**scripts/windows/export-extensions.ps1`**.
+**Экспорт актуального списка на машине с интернетом** — для Linux VM: `**python3 scripts/vscodium_server_export_extensions.py**` (экспорт из `~/.vscodium-server/extensions`). Для Windows (десктоп): `**python3 scripts/vscodium_desktop_export_extensions.py**`.
 
 ```bash
 # Linux VM (vscodium-server)
-./scripts/linux/vscodium-server-export-extensions.sh
+python3 scripts/vscodium_server_export_extensions.py
 
 # при необходимости путь к серверу можно переопределить
-SERVER_ROOT=$HOME/.vscodium-server OUT=my-ext.txt ./scripts/linux/vscodium-server-export-extensions.sh
+SERVER_ROOT=$HOME/.vscodium-server OUT=my-ext.txt python3 scripts/vscodium_server_export_extensions.py
 ```
 
 Если команда недоступна в PATH, но известен каталог расширений, можно вытащить пары `id@version` из `**extensions.json**`:
@@ -335,16 +349,11 @@ llvm-vs-code-extensions.vscode-clangd@0.4.0
 ms-python.python@2026.4.0
 ```
 
-**2. Скачивание VSIX** — из корня репозитория, на **той же платформе**, где будет установка расширений (см. `**scripts/linux/vscodium-server-download-vsix.sh`** или `**scripts/windows/download-extensions.ps1`** в таблице выше). Логика: запрос `**GET https://open-vsx.org/api/{namespace}/{name}/{version}`**, поле `**files.download`**; разбор id — первый символ `**.**` перед именем расширения в пути API (как в скриптах).
+**2. Скачивание VSIX** — из корня репозитория, на **той же платформе**, где будет установка расширений (см. `**scripts/openvsx_download_vsix.py**` в таблице выше). Логика: запрос `**GET https://open-vsx.org/api/{namespace}/{name}/{version}`**, поле `**files.download`**; разбор id — первый символ `**.**` перед именем расширения в пути API (как в скрипте).
 
 ```bash
-# Linux
-./scripts/linux/vscodium-server-download-vsix.sh vscodium-server-extensions.txt vsix
-```
-
-```powershell
-# Windows (PowerShell)
-.\scripts\windows\download-extensions.ps1 -List vscodium-server-extensions.txt -OutDir vsix
+# Linux или Windows (один и тот же скрипт)
+python3 scripts/openvsx_download_vsix.py vscodium-server-extensions.txt vsix
 ```
 
 Если какое‑то расширение отсутствует в Open VSX (или нужна сборка только под **VS Marketplace**), его придётся получить `**.vsix`** вручную с машины, где есть доступ к нужному источнику, либо использовать уже установленную копию из каталога расширений (подмножество расширений можно **заархивировать целиком** каталог `**…/extensions/`** и перенести на однотипную ОС/архитектуру — это быстрее, но менее переносимо между разными платформами).
@@ -352,23 +361,22 @@ ms-python.python@2026.4.0
 **3. Установка без интернета** на целевом компьютере:
 
 ```bash
-# Linux
-VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
+# Linux (vscodium-server)
+VSIX_DIR=vsix python3 scripts/vscodium_server_install_vsix.py
 ```
-
-```powershell
-# Windows
-.\scripts\windows\install-extensions.ps1 -VsixDir vsix
-```
-
-Вручную одной командой:
 
 ```bash
-# Linux VM (vscodium-server)
-VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
+# Windows (десктоп VSCodium)
+python3 scripts/vscodium_desktop_install_vsix.py vsix
 ```
 
-Одиночный пакет: `**SERVER_CLI=/path/to/code ./scripts/linux/vscodium-server-install-vsix.sh**` (с `VSIX_DIR`, содержащим один `.vsix`).
+Вручную одной командой (server):
+
+```bash
+VSIX_DIR=vsix python3 scripts/vscodium_server_install_vsix.py
+```
+
+Одиночный пакет: задайте `**SERVER_CLI**` / `--server-cli` и каталог `**VSIX_DIR**` с одним `.vsix`.
 
 ---
 
@@ -379,8 +387,8 @@ VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
 | --- | ----------------------------------------------------------------------------------------------------------- |
 | 1   | `apt-get install` из [раздела 2](#2-пакеты-apt) выполнен                                                    |
 | 2   | Axis2/C собран, `**AXIS2C_HOME**` указывает на префикс с `**include**` и `**lib**`                          |
-| 3   | `**./scripts/build.sh**` завершается без ошибки, есть `**build/source/backend/src/demo-sign-server**`       |
-| 4   | `**./scripts/run.sh**` запускает сервер; при необходимости создан симлинк `**…/axis2_repo/lib**`            |
+| 3   | `**python3 scripts/build.py**` завершается без ошибки, есть `**build/source/backend/src/demo-sign-server**`       |
+| 4   | `**python3 scripts/run.py**` запускает сервер; при необходимости создан симлинк `**…/axis2_repo/lib**`            |
 | 5   | `**build/compile_commands.json**` не пустой (после Bear); **clangd** подхватывает проект при открытии корня |
 | 6   | (Опционально) отладка по **F5** с конфигурации из `**.vscode/launch.json`**                                 |
 

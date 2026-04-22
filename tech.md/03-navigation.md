@@ -3,7 +3,7 @@
 ## Сверху вниз
 
 - `**configure.ac` / `Makefile.am**` — как собирается проект и где ищется Axis2/C (`--with-axis2c`, переменная `AXIS2C_HOME`). Подробности в `**AUTOTOOLS.md**`.
-- `**source/backend/src/main.c**` — запуск встроенного HTTP-сервера Axis2, разбор опций `-p` / `-r`, репозиторий по умолчанию `./axis2_repo` (в `**./scripts/run.sh**` после сборки в `build/` подставляется `**build/axis2_repo**`).
+- `**source/backend/src/main.c**` — запуск встроенного HTTP-сервера Axis2, разбор опций `-p` / `-r`, репозиторий по умолчанию `./axis2_repo` (в `**scripts/run.py**` после сборки в `build/` подставляется `**build/axis2_repo**`).
 - `**source/backend/axis2_repo/axis2.xml**` (в исходниках) — минимальный конфиг; при `make` копия попадает в `**build/axis2_repo/axis2.xml**` вместе с задеплоенным сервисом.
 - `**source/backend/src/demosign.c**`, `**source/backend/src/demoposix.c**` — код без Axis2: подпись и обёртки POSIX (`sigaction`).
 - `**source/backend/include/demosign.h**`, `**source/backend/include/demoposix.h**` — публичные заголовки, ставятся при `make install`.

@@ -12,6 +12,7 @@ import json
 import os
 import re
 import sys
+import tarfile
 import urllib.request
 from pathlib import Path
 from typing import Pattern
@@ -35,6 +36,42 @@ def fetch_file(url: str, dest: Path) -> None:
             if not chunk:
                 break
             out.write(chunk)
+
+
+_BIN_COMMIT_RE = re.compile(r"(?:^|/)bin/([0-9a-f]{40})(?:/|$)")
+
+
+def detect_git_id_from_tar_gz(path: Path) -> str:
+    """
+    Detect the VSCodium server commit id from the tarball contents.
+
+    VSCodium expects binaries under ~/.vscodium-server/bin/<git-id>/...
+    The archive typically contains paths with /bin/<40-hex>/.
+    """
+    try:
+        with tarfile.open(path, mode="r:gz") as tf:
+            for m in tf:
+                mm = _BIN_COMMIT_RE.search(m.name)
+                if mm:
+                    return mm.group(1)
+    except (tarfile.TarError, OSError):
+        return ""
+    return ""
+
+
+def with_git_id(name: str, git_id: str) -> str:
+    """
+    Insert git_id into a tarball name, preserving compound suffixes like .tar.gz.
+
+    Examples:
+      vscodium-reh-linux-x64-1.100.2.tar.gz -> vscodium-reh-linux-x64-1.100.2-<git>.tar.gz
+    """
+    if not git_id:
+        return name
+    p = Path(name)
+    suffixes = "".join(p.suffixes)
+    stem = p.name[: -len(suffixes)] if suffixes else p.stem
+    return f"{stem}-{git_id}{suffixes}"
 
 
 def pattern_for(flavor: str, arch: str) -> Pattern:
@@ -76,11 +113,28 @@ def main() -> int:
 
     outdir = args.outdir.expanduser().resolve()
     outdir.mkdir(parents=True, exist_ok=True)
-    dest = outdir / name
+
+    tmp = outdir / f".{name}.download"
     print(f"Релиз {tag}", flush=True)
     print(f"GET {url}", flush=True)
-    fetch_file(url, dest)
-    print(f"Сохранено: {dest}")
+    fetch_file(url, tmp)
+
+    git_id = detect_git_id_from_tar_gz(tmp)
+    save_name = with_git_id(name, git_id)
+    dest = outdir / save_name
+    try:
+        tmp.replace(dest)
+    except OSError:
+        # Cross-device fallback
+        dest.write_bytes(tmp.read_bytes())
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+
+    if git_id:
+        print(f"git-id: {git_id}", flush=True)
+    print(f"Сохранено: {dest}", flush=True)
     return 0
 
 

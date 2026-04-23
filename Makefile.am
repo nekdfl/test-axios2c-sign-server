@@ -1,9 +1,10 @@
 SUBDIRS = source/backend/include source/backend/services source/backend/src
 
 EXTRA_DIST = .gitattributes source/backend/axis2_repo \
-  scripts/build.py scripts/clean.py scripts/run.py \
+  scripts/build.sh scripts/clean.sh scripts/run.sh \
   scripts/vscodium_common.py \
   scripts/openvsx_download_vsix.py \
+  scripts/vscodium_install_extensions_from_list.py \
   scripts/vscodium_desktop_download.py \
   scripts/vscodium_desktop_export_extensions.py \
   scripts/vscodium_desktop_install_vsix.py \
@@ -16,6 +17,7 @@ EXTRA_DIST = .gitattributes source/backend/axis2_repo \
   scripts/windows/download-vscodium.cmd \
   scripts/windows/export-extensions.cmd \
   scripts/windows/install-extensions.cmd \
+  scripts/windows/install-extensions-from-list.cmd \
   scripts/windows/vscodium-server-download.cmd \
   scripts/windows/vscodium-server-export-extensions.cmd \
   scripts/windows/vscodium-server-install-vsix.cmd \
@@ -24,7 +26,9 @@ EXTRA_DIST = .gitattributes source/backend/axis2_repo \
   scripts/linux/download-vscodium-server.cmd \
   scripts/linux/download-vscodium-server.sh \
   scripts/linux/download-extensions.cmd \
+  scripts/linux/install-extensions-from-list.cmd \
   scripts/linux/download-extensions.sh \
+  scripts/linux/install-extensions-from-list.sh \
   scripts/linux/export-vscodium-server-extensions.sh \
   scripts/linux/install-vscodium-server-extensions.sh \
   scripts/linux/vscodium-extensions.txt \

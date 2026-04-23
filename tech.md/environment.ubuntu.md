@@ -1,17 +1,17 @@
-﻿# Сборочное окружение Ubuntu 24.04 (объединённый документ)
+# Сборочное окружение Ubuntu 24.04 (объединённый документ)
 
 В одном файле сохранены **два варианта** инструкций:
 
 | Часть | Источник | Сборка / запуск / очистка | VSCodium и офлайн |
 | ----- | -------- | ------------------------- | ------------------- |
-| **I** | полный текст в разделе ниже (краткий указатель: [`environment.md`](environment.md)) | `python3 scripts/build.py`, `run.py`, `clean.py` | Python-скрипты в `scripts/` + `scripts/linux/*.sh` для VSIX (см. `scripts/README.md`, по Linux — `scripts/README.ubuntu.md`) |
-| **II** | материал из `_ubuntu` | `./scripts/build.sh`, `run.sh`, `clean.sh` | `scripts/linux/*.sh` и `scripts/windows/*.ps1` (оболочечный контур) |
+| **I** | полный текст в разделе ниже (краткий указатель: [`environment.md`](environment.md)) | `./scripts/build.sh`, `./scripts/run.sh`, `./scripts/clean.sh` | Сборка/запуск на **bash**; для VSIX и VSCodium — **Python** в `scripts/` + `scripts/linux/*.sh` (см. `scripts/README.md`, по Linux — `scripts/README.ubuntu.md`) |
+| **II** | материал из `_ubuntu` | `./scripts/build.sh`, `./scripts/run.sh`, `./scripts/clean.sh` | `scripts/linux/*.sh` и `scripts/windows/*.ps1` (оболочечный контур) |
 
-**Практика:** в текущем дереве репозитория ориентируйтесь на **часть I** — эти команды соответствуют закоммиченным файлам. Часть II оставлена для совместимости с текстом из `_ubuntu`; отдельные пути (`build.sh`, часть `*.ps1`) могут отсутствовать — тогда используйте эквиваленты из части I или добавьте обёртки по описанию.
+**Практика:** в текущем дереве репозитория **части I и II** согласованы: сборка и запуск сервера — через `**./scripts/*.sh**`. Различия в основном в оформлении и в разделе про VSCodium.
 
 ---
 
-# Часть I — Python-скрипты
+# Часть I — Bash-скрипты (сборка и запуск)
 
 # Сборочное окружение с нуля (Ubuntu 24.04)
 
@@ -25,9 +25,9 @@
 2. [Пакеты APT](#2-пакеты-apt)
 3. [Apache Axis2/C: установка префикса](#3-apache-axis2c-установка-префикса)
 4. [Клонирование проекта и первый запуск сборки](#4-клонирование-проекта-и-первый-запуск-сборки)
-5. [Скрипт `scripts/build.py`](#5-скрипт-scriptsbuildpy)
-6. [Скрипт `scripts/run.py`](#6-скрипт-scriptsrunpy)
-7. [Скрипт `scripts/clean.py`](#7-скрипт-scriptscleanpy)
+5. [Скрипт scripts/build.sh](#5-скрипт-scriptsbuildsh)
+6. [Скрипт scripts/run.sh](#6-скрипт-scriptsrunsh)
+7. [Скрипт scripts/clean.sh](#7-скрипт-scriptscleansh)
 8. [VSCodium: расширения и настройки для C](#8-vscodium-расширения-и-настройки-для-c) (Python-скрипты в `**scripts/`** — см. подраздел ниже в том же разделе)
 9. [Проверочный чеклист](#9-проверочный-чеклист)
 
@@ -37,8 +37,8 @@
 
 1. Обновить индекс пакетов и установить зависимости из [раздела 2](#2-пакеты-apt).
 2. Собрать и установить **Apache Axis2/C** в каталог-префикс (например `$HOME/axis2c-built`), см. [раздел 3](#3-apache-axis2c-установка-префикса).
-3. Клонировать этот репозиторий, задать `AXIS2C_HOME`, выполнить `python3 scripts/build.py`.
-4. Один раз запустить `python3 scripts/run.py` (или убедиться в симлинке `axis2_repo/lib`) — см. [раздел 6](#6-скрипт-scriptsrunpy).
+3. Клонировать этот репозиторий, задать `AXIS2C_HOME`, выполнить `./scripts/build.sh`.
+4. Один раз запустить `./scripts/run.sh` (или убедиться в симлинке `axis2_repo/lib`) — см. [раздел 6](#6-скрипт-scriptsrunsh).
 5. Настроить **VSCodium** по [разделу 8](#8-vscodium-расширения-и-настройки-для-c).
 
 ---
@@ -115,17 +115,18 @@ LDFLAGS='-L/usr/lib/x86_64-linux-gnu' ./configure --with-axis2c="$AXIS2C_HOME"
 ```bash
 git clone git@github.com:nekdfl/test-axios2c-sign-server.git demo-sign-server
 cd demo-sign-server
+chmod +x scripts/build.sh scripts/clean.sh scripts/run.sh
 export AXIS2C_HOME="$HOME/axis2c-built"   # ваш префикс Axis2/C
-python3 scripts/build.py
+./scripts/build.sh
 ```
 
 Успешный результат: появляются `**build/source/backend/src/demo-sign-server**` и дерево `**build/axis2_repo/**` (включая копию `**axis2.xml**` и сервис `**demo_sign**`).
 
-Запуск сервера удобнее через `**python3 scripts/run.py**` (см. [раздел 6](#6-скрипт-scriptsrunpy)).
+Запуск сервера удобнее через `**./scripts/run.sh**` (см. [раздел 6](#6-скрипт-scriptsrunsh)).
 
 ---
 
-## 5. Скрипт `scripts/build.py`
+## 5. Скрипт `scripts/build.sh`
 
 **Назначение:** одна команда для полного цикла **autoreconf → configure → make** в **отдельном каталоге сборки** (по умолчанию `**build/`** в корне проекта).
 
@@ -134,21 +135,21 @@ python3 scripts/build.py
 1. `**autoreconf -fi`** в корне исходников — генерируются `**configure`** и `**Makefile.in`** рядом с `**Makefile.am**` (эти файлы обычно не коммитятся).
 2. Поиск префикса Axis2/C с заголовком `**axis2_http_server.h**`: первый аргумент скрипта (если это каталог с заголовками), затем `**$AXIS2C_HOME**`, затем перебор типичных путей (`$HOME/axis2c-built`, `$HOME/axis2c`, `/usr/local/axis2c`, `/opt/axis2c`).
 3. `**mkdir**` каталога сборки (`**DEMO_SIGN_BUILD_DIR**`, по умолчанию `**build/**`).
-4. Запуск `**../configure**` из этого каталога с `**--with-axis2c=...**` и любыми дополнительными аргументами, переданными в `**python3 scripts/build.py**` после префикса Axis2 (если есть).
+4. Запуск `**../configure**` из этого каталога с `**--with-axis2c=...**` и любыми дополнительными аргументами, переданными в `**./scripts/build.sh**` после префикса Axis2 (если есть).
 5. `**make**` в каталоге сборки. Если установлен `**bear**`, сборка выполняется под `**bear**` и создаётся `**build/compile_commands.json**` для IDE. Если после инкрементальной сборки файл пустой (`**[]**`), скрипт выполняет `**make clean**` и повторную сборку под Bear — иначе clangd не получает команд компиляции.
 
 Примеры:
 
 ```bash
-python3 scripts/build.py
-AXIS2C_HOME="$HOME/axis2c-built" python3 scripts/build.py
-python3 scripts/build.py "$HOME/axis2c-built" --prefix=/usr/local
-DEMO_SIGN_BUILD_DIR="$PWD/out" python3 scripts/build.py
+./scripts/build.sh
+AXIS2C_HOME="$HOME/axis2c-built" ./scripts/build.sh
+./scripts/build.sh "$HOME/axis2c-built" --prefix=/usr/local
+DEMO_SIGN_BUILD_DIR="$PWD/out" ./scripts/build.sh
 ```
 
 ---
 
-## 6. Скрипт `scripts/run.py`
+## 6. Скрипт `scripts/run.sh`
 
 **Назначение:** запуск `**demo-sign-server`** с разумными значениями по умолчанию.
 
@@ -162,14 +163,14 @@ DEMO_SIGN_BUILD_DIR="$PWD/out" python3 scripts/build.py
 Примеры:
 
 ```bash
-python3 scripts/run.py
-PORT=9090 python3 scripts/run.py
-DEMO_SIGN_AXIS2_REPO=/path/to/repo python3 scripts/run.py -l 3
+./scripts/run.sh
+PORT=9090 ./scripts/run.sh
+DEMO_SIGN_AXIS2_REPO=/path/to/repo ./scripts/run.sh -l 3
 ```
 
 ---
 
-## 7. Скрипт `scripts/clean.py`
+## 7. Скрипт `scripts/clean.sh`
 
 **Назначение:** убрать локально сгенерированные артефакты Autotools и сборки, **не удаляя исходники** `.c`/`.h`/`.md`.
 
@@ -182,7 +183,7 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo python3 scripts/run.py -l 3
 5. Удаление каталогов `**.deps**` / `**.libs**`, объектных и libtool-файлов (`***.o**`, `***.lo**`, `***.la**`, `***.a**`).
 6. Удаление копии `**source/backend/axis2_repo/services/demo_sign/libdemo_sign.so**` в исходном дереве (если осталась от старой схемы).
 
-После `**python3 scripts/clean.py**` снова нужны `**python3 scripts/build.py**` (или ручной **autoreconf** + **configure** + **make**).
+После `**./scripts/clean.sh**` снова нужны `**./scripts/build.sh**` (или ручной **autoreconf** + **configure** + **make**).
 
 ---
 
@@ -199,7 +200,7 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo python3 scripts/run.py -l 3
 
 ### База компиляции и `.clangd`
 
-1. Установите `**bear`** (раздел 2) и выполните `**python3 scripts/build.py`**, чтобы в `**build/`** появился непустой `**compile_commands.json**`.
+1. Установите `**bear`** (раздел 2) и выполните `**./scripts/build.sh`**, чтобы в `**build/`** появился непустой `**compile_commands.json**`.
 2. В корне репозитория файл `**.clangd**` содержит указание каталога базы:
   ```yaml
    CompileDatabase: build
@@ -215,7 +216,7 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo python3 scripts/run.py -l 3
 
 ### Переменные окружения в терминале VSCodium
 
-Чтобы `**scripts/run.py`** и поиск Axis2 находили префикс, в `**~/.bashrc`** или в настройках терминала IDE задайте:
+Чтобы `**./scripts/run.sh`** и поиск Axis2 находили префикс, в `**~/.bashrc`** или в настройках терминала IDE задайте:
 
 ```bash
 export AXIS2C_HOME="$HOME/axis2c-built"
@@ -402,8 +403,8 @@ VSIX_DIR=vsix python3 scripts/vscodium_server_install_vsix.py
 | --- | ----------------------------------------------------------------------------------------------------------- |
 | 1   | `apt-get install` из [раздела 2](#2-пакеты-apt) выполнен                                                    |
 | 2   | Axis2/C собран, `**AXIS2C_HOME**` указывает на префикс с `**include**` и `**lib**`                          |
-| 3   | `**python3 scripts/build.py**` завершается без ошибки, есть `**build/source/backend/src/demo-sign-server**`       |
-| 4   | `**python3 scripts/run.py**` запускает сервер; при необходимости создан симлинк `**…/axis2_repo/lib**`            |
+| 3   | `**./scripts/build.sh**` завершается без ошибки, есть `**build/source/backend/src/demo-sign-server**`       |
+| 4   | `**./scripts/run.sh**` запускает сервер; при необходимости создан симлинк `**…/axis2_repo/lib**`            |
 | 5   | `**build/compile_commands.json**` не пустой (после Bear); **clangd** подхватывает проект при открытии корня |
 | 6   | (Опционально) отладка по **F5** с конфигурации из `**.vscode/launch.json`**                                 |
 
@@ -617,7 +618,7 @@ DEMO_SIGN_AXIS2_REPO=/path/to/repo ./scripts/run.sh -l 3
 
 ### Переменные окружения в терминале VSCodium
 
-Чтобы `**scripts/run.sh`** и поиск Axis2 находили префикс, в `**~/.bashrc`** или в настройках терминала IDE задайте:
+Чтобы `**./scripts/run.sh`** и поиск Axis2 находили префикс, в `**~/.bashrc`** или в настройках терминала IDE задайте:
 
 ```bash
 export AXIS2C_HOME="$HOME/axis2c-built"

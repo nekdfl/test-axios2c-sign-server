@@ -17,8 +17,8 @@
 
 ## Что внутри
 
-- **`scripts/`** — `build.py`, `clean.py`, `run.py` (сборка, очистка, запуск; из корня: `python3 scripts/…`), плюс Python-утилиты VSCodium/Open VSX (`vscodium_*.py`, `openvsx_download_vsix.py`).
-- **`scripts/windows/`** — пример списка расширений `vscodium-extensions.txt` (и при необходимости каталог `vsix/`); сами команды — из корня через `python3 scripts/…` или см. [`scripts/README.windows.md`](scripts/README.windows.md).
+- **`scripts/`** — `build.sh`, `clean.sh`, `run.sh` (сборка, очистка, запуск; из корня: `./scripts/…`), плюс Python-утилиты VSCodium/Open VSX (`vscodium_*.py`, `openvsx_download_vsix.py`).
+- **`scripts/windows/`** — пример списка расширений `vscodium-extensions.txt` (и при необходимости каталог `vsix/`); сами команды — из корня через `python3 scripts/…` (утилиты VSIX) или см. [`scripts/README.windows.md`](scripts/README.windows.md).
 - **`scripts/linux/`** — **`*.sh`** (bash, `curl`, `jq`): скачивание сервера/VSIX и офлайн-установка; **`*.cmd`** для тех же задач под Windows через Python; см. [`scripts/README.ubuntu.md`](scripts/README.ubuntu.md) и [`scripts/README.md`](scripts/README.md).
 - **`source/backend/`** — исходники C и Axis2: `src/`, `include/`, `services/`, шаблон **`axis2_repo/`**.
 - **`source/frontend/client/`** — Python-скрипт для вызовов SOAP (`urllib`, без сторонних пакетов).

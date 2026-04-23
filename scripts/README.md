@@ -1,20 +1,25 @@
-# Скрипты (Python 3)
+# Скрипты
 
-Запуск из **корня** репозитория. Нужен только интерпретатор Python 3 (стандартная библиотека).
+Запуск из **корня** репозитория.
 
-## Сборка и запуск Axis2/C
+## Сборка и запуск Axis2/C (Bash)
+
+Нужен **bash** и обычные Unix-утилиты (`find`, `mkdir`, …).
 
 | Скрипт | Назначение |
 |--------|------------|
-| `build.py` | `autoreconf` → `configure` + `make` в `build/`; опционально Bear для `compile_commands.json`. |
-| `clean.py` | Удаление артефактов autotools и каталога `build/`. |
-| `run.py` | Запуск `demo-sign-server` (переменные `PORT`, `DEMO_SIGN_AXIS2_REPO`). |
+| `build.sh` | `autoreconf` → `configure` + `make` в `build/`; опционально Bear для `compile_commands.json`. |
+| `clean.sh` | Удаление артефактов autotools и каталога `build/`. |
+| `run.sh` | Запуск `demo-sign-server` (переменные `PORT`, `DEMO_SIGN_AXIS2_REPO`). |
 
-## VSCodium / Open VSX
+## VSCodium / Open VSX (Python 3)
+
+Нужен интерпретатор **Python 3** (стандартная библиотека + скрипты ниже).
 
 | Скрипт | Назначение |
 |--------|------------|
 | `openvsx_download_vsix.py` | Скачать `.vsix` по списку `publisher.ext@version` с Open VSX. |
+| `vscodium_install_extensions_from_list.py` | По списку для **vscodium-server** (`~/.vscodium-server`): `codium --extensions-dir …/extensions --install-extension …` (или `--openvsx` + `.vsix`; `--desktop` — десктоп). |
 | `vscodium_common.py` | Общие функции поиска CLI (импортируется другими скриптами). |
 | `vscodium_desktop_download.py` | Последний релиз VSCodium для Windows (zip + Setup + UserSetup). |
 | `vscodium_desktop_export_extensions.py` | Экспорт расширений десктопного VSCodium. |

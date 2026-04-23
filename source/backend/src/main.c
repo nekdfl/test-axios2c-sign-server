@@ -44,11 +44,18 @@
 #include <axiom_xml_reader.h>
 #include <axutil_version.h>
 #include <axutil_file_handler.h>
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
 
 axutil_env_t *system_env = NULL;
 axis2_transport_receiver_t *server = NULL;
 AXIS2_IMPORT extern int axis2_http_socket_read_timeout;
 AXIS2_IMPORT extern axis2_char_t *axis2_request_url_prefix;
+
+#define DEMO_PREFORK_WORKERS 4
 
 #ifndef AXIS2_REPO_DEFAULT
 #define AXIS2_REPO_DEFAULT "./axis2_repo"
@@ -58,6 +65,13 @@ axutil_env_t *init_syetem_env(axutil_allocator_t *allocator, const axis2_char_t 
 noreturn void system_exit(axutil_env_t *env, int status);
 void usage(axis2_char_t *prog_name);
 void sig_handler(int signal);
+
+static int run_server(
+    const axis2_char_t *repo_path,
+    int port,
+    const axis2_char_t *log_file,
+    axutil_log_levels_t log_level,
+    int log_file_size);
 
 /**
  * @brief Builds the global Axis2 @c axutil_env (log, error, thread pool, XML reader init).
@@ -126,18 +140,13 @@ main(
     int argc,
     char *argv[])
 {
-    axutil_allocator_t *allocator = NULL;
-    axutil_env_t *env = NULL;
     extern char *optarg;
     extern int optopt;
     int c;
-    unsigned int len;
     int log_file_size = AXUTIL_LOG_FILE_SIZE;
-    unsigned int file_flag = 0;
     axutil_log_levels_t log_level = AXIS2_LOG_LEVEL_DEBUG;
     const axis2_char_t *log_file = "axis2.log";
     int port = 8080;
-    axis2_status_t status;
 
     axis2_char_t *repo_path = AXIS2_GETENV("DEMO_SIGN_AXIS2_REPO");
     if (!repo_path) {
@@ -193,8 +202,72 @@ main(
         }
     }
 
-    allocator = axutil_allocator_init(NULL);
+#ifdef WIN32
+    /* Prefork is not supported on Windows in this demo. */
+    return run_server(repo_path, port, log_file, log_level, log_file_size);
+#else
+    /* Prefork pool: start 4 worker processes. Each worker listens on port+idx.
+     * Axis2/C simple HTTP server does not enable SO_REUSEPORT, so multiple
+     * processes cannot bind the same port reliably. */
+    pid_t kids[DEMO_PREFORK_WORKERS];
+    int i;
+    for (i = 0; i < DEMO_PREFORK_WORKERS; i++)
+    {
+        pid_t pid = fork();
+        if (pid < 0)
+        {
+            perror("fork");
+            return 1;
+        }
+        if (pid == 0)
+        {
+            int worker_port = port + i;
+            return run_server(repo_path, worker_port, log_file, log_level, log_file_size);
+        }
+        kids[i] = pid;
+    }
 
+    fprintf(stderr, "Prefork master: started %d workers on ports %d..%d\n",
+            DEMO_PREFORK_WORKERS, port, port + DEMO_PREFORK_WORKERS - 1);
+
+    /* Wait until any child exits, then terminate the rest. */
+    {
+        int status = 0;
+        pid_t died = wait(&status);
+        if (died > 0)
+        {
+            fprintf(stderr, "Prefork master: worker %ld exited, shutting down pool\n", (long)died);
+        }
+        for (i = 0; i < DEMO_PREFORK_WORKERS; i++)
+        {
+            if (kids[i] > 0 && kids[i] != died)
+            {
+                (void)kill(kids[i], SIGTERM);
+            }
+        }
+        /* Reap remaining children. */
+        while (wait(NULL) > 0) {}
+        if (WIFEXITED(status)) return WEXITSTATUS(status);
+        return 1;
+    }
+#endif
+}
+
+static int
+run_server(
+    const axis2_char_t *repo_path,
+    int port,
+    const axis2_char_t *log_file,
+    axutil_log_levels_t log_level,
+    int log_file_size)
+{
+    axutil_allocator_t *allocator = NULL;
+    axutil_env_t *env = NULL;
+    unsigned int len;
+    unsigned int file_flag = 0;
+    axis2_status_t status;
+
+    allocator = axutil_allocator_init(NULL);
     if(!allocator)
     {
         system_exit(NULL, -1);
@@ -256,7 +329,6 @@ main(
         AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Server creation failed: Error code:" " %d :: %s",
             env->error->error_number, AXIS2_ERROR_GET_MESSAGE(env->error));
         system_exit(env, -1);
-
     }
     printf("Started Simple Axis2 HTTP Server ...\n");
     if(axis2_transport_receiver_start(server, env) == AXIS2_FAILURE)
@@ -285,7 +357,8 @@ usage(
     fprintf(stdout, " [-f LOG_FILE]\n");
     fprintf(stdout, " [-s LOG_FILE_SIZE]\n");
     fprintf(stdout, " Options :\n");
-    fprintf(stdout, "\t-p PORT \t port number to use, default port is 8080\n");
+    fprintf(stdout, "\t-p PORT \t base port number to use (prefork spawns %d workers on PORT..PORT+%d), default is 8080\n",
+        DEMO_PREFORK_WORKERS, DEMO_PREFORK_WORKERS - 1);
     fprintf(stdout, "\t-r REPO_PATH \t Axis2 repository directory (axis2.xml + services/), default ./axis2_repo or DEMO_SIGN_AXIS2_REPO / AXIS2C_HOME\n");
     fprintf(stdout, "\t-t TIMEOUT\t socket read timeout, default is 30 seconds\n");
     fprintf(stdout, "\t-l LOG_LEVEL\t log level, available log levels:"

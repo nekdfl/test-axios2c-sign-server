@@ -28,7 +28,7 @@ sudo apt-get install -y \
 ```
 
 **clangd** — язык‑сервер для C/C++ (используется расширением *clangd* в VSCodium).  
-**bear** — по желанию: при наличии **`python3 scripts/build.py`** пишет **`build/compile_commands.json`** для **clangd** (файл **`.clangd`** в корне указывает каталог с базой).
+**bear** — по желанию: при наличии **`./scripts/build.sh`** пишет **`build/compile_commands.json`** для **clangd** (файл **`.clangd`** в корне указывает каталог с базой).
 
 **Apache Axis2/C** должен быть установлен в префикс (например `/usr/local/axis2c` или `$HOME/axis2c-built`). Укажите путь через **`AXIS2C_HOME`** или флаг **`./configure --with-axis2c=...`**.
 
@@ -48,10 +48,10 @@ LDFLAGS='-L/usr/lib/x86_64-linux-gnu' ./configure --with-axis2c="$AXIS2C_HOME"
 
 ```bash
 export AXIS2C_HOME=/path/to/axis2c/prefix   # пример
-python3 scripts/build.py
+./scripts/build.sh
 ```
 
-`scripts/build.py` выполняет: `autoreconf -fi` в корне исходников → `configure` и `make` **в каталоге `build/`** (объекты и генерируемые Makefile’ы не попадают в `source/backend/...`). Каталог сборки можно задать переменной **`DEMO_SIGN_BUILD_DIR`**.
+`./scripts/build.sh` выполняет: `autoreconf -fi` в корне исходников → `configure` и `make` **в каталоге `build/`** (объекты и генерируемые Makefile’ы не попадают в `source/backend/...`). Каталог сборки можно задать переменной **`DEMO_SIGN_BUILD_DIR`**.
 
 ---
 
@@ -74,7 +74,7 @@ make -j"$(nproc)"
 Минимум:
 
 - Установите `clangd` (см. список APT выше) и расширение **clangd** в VSCodium.
-- Выполните **`python3 scripts/build.py`**; при наличии **Bear** появится **`build/compile_commands.json`**.
+- Выполните **`./scripts/build.sh`**; при наличии **Bear** появится **`build/compile_commands.json`**.
 - Файл **`.clangd`** в корне указывает clangd на каталог базы (`CompileDatabase: build`).
 
 Подробный гайд по VSCodium и офлайн‑VSIX на Linux — в **`tech.md/environment.ubuntu.md`**.
@@ -84,7 +84,7 @@ make -j"$(nproc)"
 ## Очистка
 
 ```bash
-python3 scripts/clean.py
+./scripts/clean.sh
 ```
 
 Удаляет каталог **`build/`** (если был), затем сгенерированные в корне `configure`, `Makefile*`, объекты, кэш autotools и копии сервиса в **`source/backend/axis2_repo/`** (если остались от старой in-tree сборки).
@@ -93,13 +93,13 @@ python3 scripts/clean.py
 
 ## Запуск сервера
 
-После `python3 scripts/build.py` бинарник: **`build/source/backend/src/demo-sign-server`**, репозиторий для запуска (с копией `axis2.xml` и сервисом): **`build/axis2_repo/`**. Удобнее **`python3 scripts/run.py`** (сам выбирает бинарник под `build/` или in-tree под `source/backend/`).
+После `./scripts/build.sh` бинарник: **`build/source/backend/src/demo-sign-server`**, репозиторий для запуска (с копией `axis2.xml` и сервисом): **`build/axis2_repo/`**. Удобнее **`./scripts/run.sh`** (сам выбирает бинарник под `build/` или in-tree под `source/backend/`).
 
 ```bash
 ./build/source/backend/src/demo-sign-server -p 8080 -r "$PWD/build/axis2_repo"
 ```
 
-Если не указать `-r`, сервер по умолчанию ищет `./axis2_repo` от текущего каталога; в **`scripts/run.py`** по умолчанию подставляется **`build/axis2_repo`**, если он есть. Также **`DEMO_SIGN_AXIS2_REPO`**, затем **`AXIS2C_HOME`** для путей репозитория в `main.c`.
+Если не указать `-r`, сервер по умолчанию ищет `./axis2_repo` от текущего каталога; в **`./scripts/run.sh`** по умолчанию подставляется **`build/axis2_repo`**, если он есть. Также **`DEMO_SIGN_AXIS2_REPO`**, затем **`AXIS2C_HOME`** для путей репозитория в `main.c`.
 
 ---
 

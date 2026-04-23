@@ -14,23 +14,25 @@ EXTRA_DIST = .gitattributes source/backend/axis2_repo \
   scripts/windows/vscodium-extensions.txt \
   scripts/windows/_invoke_python.cmd \
   scripts/windows/download-extensions.cmd \
-  scripts/windows/download-vscodium.cmd \
-  scripts/windows/export-extensions.cmd \
-  scripts/windows/install-extensions.cmd \
-  scripts/windows/install-extensions-from-list.cmd \
+  scripts/windows/vscodium-desktop-download.cmd \
+  scripts/windows/vscodium-desktop-export-extensions.cmd \
+  scripts/windows/vscodium-desktop-install-vsix.cmd \
+  scripts/windows/vscodium-desktop-install-from-list.cmd \
+  scripts/windows/vscodium-server-install-from-list.cmd \
   scripts/windows/vscodium-server-download.cmd \
   scripts/windows/vscodium-server-export-extensions.cmd \
   scripts/windows/vscodium-server-install-vsix.cmd \
   scripts/linux/_invoke_python.cmd \
   scripts/linux/_vscodium_server_common.sh \
-  scripts/linux/download-vscodium-server.cmd \
-  scripts/linux/download-vscodium-server.sh \
+  scripts/linux/vscodium-server-download.cmd \
+  scripts/linux/vscodium-server-download.sh \
   scripts/linux/download-extensions.cmd \
-  scripts/linux/install-extensions-from-list.cmd \
+  scripts/linux/vscodium-server-install-from-list.cmd \
   scripts/linux/download-extensions.sh \
-  scripts/linux/install-extensions-from-list.sh \
-  scripts/linux/export-vscodium-server-extensions.sh \
-  scripts/linux/install-vscodium-server-extensions.sh \
+  scripts/linux/vscodium-server-install-from-list.sh \
+  scripts/linux/vscodium-desktop-install-from-list.sh \
+  scripts/linux/vscodium-server-export-extensions.sh \
+  scripts/linux/vscodium-server-install-vsix.sh \
   scripts/linux/vscodium-extensions.txt \
   scripts/README.md \
   .clangd AUTOTOOLS.md tech.md source/frontend

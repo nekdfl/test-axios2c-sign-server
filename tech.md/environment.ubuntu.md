@@ -247,18 +247,18 @@ python3 scripts/openvsx_download_vsix.py vscodium-server-extensions.txt vsix
 VSIX_DIR=vsix python3 scripts/vscodium_server_install_vsix.py
 ```
 
-**Офлайн:** на машине **с интернетом** скачайте архив сервера и VSIX в **`scripts/linux/`**: под **Linux** — **`scripts/linux/download-vscodium-server.sh`** и **`download-extensions.sh`** (bash, нужны **`curl`** и **`jq`**); под **Windows** — **`scripts/linux/*.cmd`** и Python 3. Затем скопируйте репозиторий на изолированный Linux и выполните установку **`install-vscodium-server-extensions.sh`** (без Python). Подробности — `scripts/README.ubuntu.md` (и общий `scripts/README.md`).
+**Офлайн:** на машине **с интернетом** скачайте архив сервера и VSIX в **`scripts/linux/`**: под **Linux** — **`scripts/linux/vscodium-server-download.sh`** и **`download-extensions.sh`** (bash, нужны **`curl`** и **`jq`**); под **Windows** — **`scripts/linux/*.cmd`** и Python 3. Затем скопируйте репозиторий на изолированный Linux и выполните установку **`vscodium-server-install-vsix.sh`** (без Python). Подробности — `scripts/README.ubuntu.md` (и общий `scripts/README.md`).
 
 ```bash
 # машина с интернетом — Linux:
-#   ./scripts/linux/download-vscodium-server.sh
+#   ./scripts/linux/vscodium-server-download.sh
 #   ./scripts/linux/download-extensions.sh
 # или Windows + Python:
-#   scripts\linux\download-vscodium-server.cmd
+#   scripts\linux\vscodium-server-download.cmd
 #   scripts\linux\download-extensions.cmd
 
 # офлайн Linux-хост — распаковка vscodium-server, затем:
-./scripts/linux/install-vscodium-server-extensions.sh
+./scripts/linux/vscodium-server-install-vsix.sh
 ```
 
 **Windows: VSCodium (десктоп)**
@@ -635,7 +635,7 @@ export AXIS2C_HOME="$HOME/axis2c-built"
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `vscodium-server-download.sh`          | Скачивает архив **vscodium-server** из GitHub Releases: `**vscodium-reh-linux-${ARCH}-*.tar.gz`** (`FLAVOR=reh`, по умолчанию) или web-вариант `**vscodium-reh-web-linux-${ARCH}-*.tar.gz`** (`FLAVOR=reh-web`). Переменные: `**ARCH`** (`x64`, `arm64`, `armhf`), `**FLAVOR`**, `**OUTDIR**`. |
 | `vscodium-server-export-extensions.sh` | Экспортирует расширения из `**~/.vscodium-server**`: сначала через `**SERVER_CLI**` (если найден), иначе из `**extensions.json**`; результат в `**OUT**` (по умолчанию `vscodium-server-extensions.txt`).                                                                                      |
-| `vscodium-server-download-vsix.sh`     | Аргументы: `**[список]**` `**[каталог_vsix]**` (по умолчанию `vscodium-server-extensions.txt` и `vsix`). Python 3 из состава системы; разбор id: первый символ `**.**` делит namespace и имя расширения для API Open VSX.                                                                      |
+| `download-extensions.sh`     | Аргументы: `**[список]**` `**[каталог_vsix]**` (по умолчанию `vscodium-extensions.txt` и `vsix` в `scripts/linux/`). **bash** + **curl** + **jq**; разбор id: первый символ `**.**` делит namespace и имя расширения для API Open VSX.                                                                      |
 | `vscodium-server-install-vsix.sh`      | Устанавливает все `***.vsix`** в `**~/.vscodium-server/extensions`** через server CLI. Переменные: `**VSIX_DIR`**, `**SERVER_ROOT**`, `**SERVER_CLI**`.                                                                                                                                        |
 
 
@@ -645,7 +645,7 @@ export AXIS2C_HOME="$HOME/axis2c-built"
 chmod +x scripts/linux/*.sh   # один раз
 FLAVOR=reh ARCH=x64 OUTDIR="$HOME/dist" ./scripts/linux/vscodium-server-download.sh
 OUT=my-ext.txt ./scripts/linux/vscodium-server-export-extensions.sh
-./scripts/linux/vscodium-server-download-vsix.sh vscodium-server-extensions.txt vsix
+./scripts/linux/download-extensions.sh vscodium-server-extensions.txt vsix
 VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
 ```
 
@@ -654,19 +654,19 @@ VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
 
 | Файл                      | Назначение                                                                                                                                                |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `download-vscodium.ps1`   | Последний релиз: `**VSCodium-win32-${Arch}-*.zip`** (`-Arch x64` или `arm64`, `-OutDir`).                                                                 |
-| `export-extensions.ps1`   | Список расширений в `**-OutFile`** (по умолчанию `vscodium-server-extensions.txt`). Поиск `VSCodium.exe` в PATH или типичных каталогах; иначе `**-Cli`**. |
-| `download-extensions.ps1` | `**-List`** и `**-OutDir**` (`vsix` по умолчанию); обращение к Open VSX, тот же разбор id (**первый** `**.`**).                                           |
-| `install-extensions.ps1`  | Все `***.vsix`** из `**-VsixDir`**; при необходимости `**-Cli`** к `VSCodium.exe`.                                                                        |
+| `vscodium-desktop-download.cmd`   | Последний релиз десктопного VSCodium (аргументы: `--arch`, `--outdir` — см. `vscodium_desktop_download.py`).                                                                 |
+| `vscodium-desktop-export-extensions.cmd`   | Список расширений в файл (аргументы как у `vscodium_desktop_export_extensions.py`; опционально путь к `VSCodium.exe`). |
+| `download-extensions.cmd` | Скачивание VSIX с Open VSX (аргументы: список и каталог — см. `openvsx_download_vsix.py`).                                           |
+| `vscodium-desktop-install-vsix.cmd`  | Установка всех `*.vsix` из каталога в десктопный VSCodium (аргументы как у `vscodium_desktop_install_vsix.py`).                                                                        |
 
 
-Примеры из корня репозитория (PowerShell):
+Примеры из корня репозитория (**cmd**; аргументы как у соответствующих `.py`):
 
-```powershell
-.\scripts\windows\download-vscodium.ps1 -Arch x64 -OutDir .
-.\scripts\windows\export-extensions.ps1 -OutFile vscodium-server-extensions.txt
-.\scripts\windows\download-extensions.ps1 -List vscodium-server-extensions.txt -OutDir vsix
-.\scripts\windows\install-extensions.ps1 -VsixDir vsix
+```bat
+scripts\windows\vscodium-desktop-download.cmd --arch x64 --outdir .
+scripts\windows\vscodium-desktop-export-extensions.cmd vscodium-server-extensions.txt
+scripts\windows\download-extensions.cmd scripts\windows\vscodium-extensions.txt vsix
+scripts\windows\vscodium-desktop-install-vsix.cmd vsix
 ```
 
 **Замечание по платформам:** VSIX, скачанные под **Windows**, не переносите на **Linux** (и наоборот), если в расширении есть нативные двоичные файлы — ставьте пакеты, собранные для целевой ОС и архитектуры (на Linux для VM используйте сценарии `**scripts/linux`**).
@@ -715,7 +715,7 @@ VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
 | `wholroyd.jinja`                             | 0.0.8     |
 
 
-**Экспорт актуального списка на машине с интернетом** — для Linux VM используйте `**scripts/linux/vscodium-server-export-extensions.sh`** (экспорт именно из `~/.vscodium-server/extensions`). Для Windows host — `**scripts/windows/export-extensions.ps1`**.
+**Экспорт актуального списка на машине с интернетом** — для Linux VM используйте `**scripts/linux/vscodium-server-export-extensions.sh`** (экспорт именно из `~/.vscodium-server/extensions`). Для Windows host — `**scripts/windows/vscodium-desktop-export-extensions.cmd**` (или `python3 scripts/vscodium_desktop_export_extensions.py`).
 
 ```bash
 # Linux VM (vscodium-server)
@@ -752,16 +752,16 @@ llvm-vs-code-extensions.vscode-clangd@0.4.0
 ms-python.python@2026.4.0
 ```
 
-**2. Скачивание VSIX** — из корня репозитория, на **той же платформе**, где будет установка расширений (см. `**scripts/linux/vscodium-server-download-vsix.sh`** или `**scripts/windows/download-extensions.ps1`** в таблице выше). Логика: запрос `**GET https://open-vsx.org/api/{namespace}/{name}/{version}`**, поле `**files.download`**; разбор id — первый символ `**.**` перед именем расширения в пути API (как в скриптах).
+**2. Скачивание VSIX** — из корня репозитория, на **той же платформе**, где будет установка расширений (см. `**scripts/linux/download-extensions.sh`** или `**scripts/windows/download-extensions.cmd`** в таблице выше). Логика: запрос `**GET https://open-vsx.org/api/{namespace}/{name}/{version}`**, поле `**files.download`**; разбор id — первый символ `**.**` перед именем расширения в пути API (как в скриптах).
 
 ```bash
 # Linux
-./scripts/linux/vscodium-server-download-vsix.sh vscodium-server-extensions.txt vsix
+./scripts/linux/download-extensions.sh vscodium-server-extensions.txt vsix
 ```
 
-```powershell
-# Windows (PowerShell)
-.\scripts\windows\download-extensions.ps1 -List vscodium-server-extensions.txt -OutDir vsix
+```bat
+REM Windows (cmd из корня)
+scripts\windows\download-extensions.cmd vscodium-server-extensions.txt vsix
 ```
 
 Если какое‑то расширение отсутствует в Open VSX (или нужна сборка только под **VS Marketplace**), его придётся получить `**.vsix`** вручную с машины, где есть доступ к нужному источнику, либо использовать уже установленную копию из каталога расширений (подмножество расширений можно **заархивировать целиком** каталог `**…/extensions/`** и перенести на однотипную ОС/архитектуру — это быстрее, но менее переносимо между разными платформами).
@@ -773,9 +773,9 @@ ms-python.python@2026.4.0
 VSIX_DIR=vsix ./scripts/linux/vscodium-server-install-vsix.sh
 ```
 
-```powershell
-# Windows
-.\scripts\windows\install-extensions.ps1 -VsixDir vsix
+```bat
+REM Windows
+scripts\windows\vscodium-desktop-install-vsix.cmd vsix
 ```
 
 Вручную одной командой:

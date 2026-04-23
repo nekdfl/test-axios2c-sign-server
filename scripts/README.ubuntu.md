@@ -10,8 +10,9 @@
 |------|------------|
 | `_invoke_python.cmd` | Запуск `.py` из `scripts/` (Windows). |
 | `_vscodium_server_common.sh` | Функции поиска `codium` CLI и замены `remote-cli/*` (для других `.sh`). |
-| `download-vscodium-server.cmd` / `.sh` | Архив `vscodium-reh-linux-*.tar.gz` с GitHub в `scripts/linux/` (переменные `ARCH`, `FLAVOR`, `OUTDIR`). |
+| `vscodium-server-download.cmd` / `.sh` | Архив `vscodium-reh-linux-*.tar.gz` с GitHub в `scripts/linux/` (переменные `ARCH`, `FLAVOR`, `OUTDIR`). |
 | `download-extensions.cmd` / `.sh` | VSIX с Open VSX по `vscodium-extensions.txt` → `vsix/`. |
-| `install-extensions-from-list.cmd` / `.sh` | По списку для **vscodium-server**: установка через server CLI и `--extensions-dir` (или `--openvsx`; `--desktop` — десктоп). |
-| `install-vscodium-server-extensions.sh` | Установка всех `*.vsix` через бинарник сервера (не Python). |
-| `export-vscodium-server-extensions.sh` | Список расширений: CLI или разбор `extensions.json` через `jq`. |
+| `vscodium-server-install-from-list.cmd` / `.sh` | По списку для **vscodium-server** (или `--openvsx`). |
+| `vscodium-desktop-install-from-list.sh` | По списку для **десктопного** VSCodium (`--desktop`). |
+| `vscodium-server-install-vsix.sh` | Установка всех `*.vsix` через бинарник сервера (не Python). |
+| `vscodium-server-export-extensions.sh` | Список расширений: CLI или разбор `extensions.json` через `jq`. |

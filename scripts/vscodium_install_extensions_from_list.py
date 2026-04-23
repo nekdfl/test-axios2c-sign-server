@@ -16,6 +16,10 @@
       [--server-root DIR] [--server-cli PATH]
       [--desktop] [--codium PATH]
 
+Обёртки cmd: `scripts/windows/vscodium-server-install-from-list.cmd` (сервер),
+`scripts/windows/vscodium-desktop-install-from-list.cmd` (десктоп). На Linux:
+`scripts/linux/vscodium-server-install-from-list.sh` и `scripts/linux/vscodium-desktop-install-from-list.sh`.
+
 Переменные: SERVER_ROOT (по умолчанию ~/.vscodium-server), SERVER_CLI, VSIX_DIR (--openvsx),
 EXTENSIONS_LIST. Для десктопного VSCodium: --desktop и при необходимости CODIUM_EXE / --codium.
 """
@@ -67,7 +71,7 @@ def run_openvsx_download(list_path: Path, vsix_dir: Path) -> int:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Установка расширений vscodium-server по списку.")
+    ap = argparse.ArgumentParser(description="Установка расширений VSCodium по списку (vscodium-server или десктоп).")
     ap.add_argument(
         "list",
         nargs="?",

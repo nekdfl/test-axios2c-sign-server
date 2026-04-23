@@ -9,6 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/_vscodium_server_common.sh"
 vscodium_require_curl_jq || exit 1
+vscodium_apply_proxy_cfg
 
 ARCH="${ARCH:-x64}"
 FLAVOR="${FLAVOR:-reh}"

@@ -12,6 +12,10 @@ import sys
 import urllib.error
 import urllib.request
 
+from vscodium_common import install_urllib_proxy_from_cfg
+
+install_urllib_proxy_from_cfg()
+
 UA = "openvsx-download-vsix/1.0"
 
 

@@ -2,7 +2,7 @@
 
 Общие таблицы Python-скриптов — в [`README.md`](README.md).
 
-**На Linux без Python:** сценарии **`*.sh`** — чистый **bash**, плюс **`curl`** и **`jq`**. Общая логика CLI vscodium-server — в **`_vscodium_server_common.sh`** (подключается через `source`).
+**На Linux без Python:** сценарии **`*.sh`** — чистый **bash**, плюс **`curl`** и **`jq`**. Общая логика CLI vscodium-server — в **`_vscodium_server_common.sh`** (подключается через `source`; оттуда же **`scripts/proxy.cfg`** для `http_proxy`/`https_proxy` при `use_proxy=true`).
 
 **Скачивание под Windows с Python:** **`*.cmd`** вызывают **`_invoke_python.cmd`** → `scripts/*.py` (то же назначение, что и `.sh`, но через Python).
 

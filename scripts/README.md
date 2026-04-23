@@ -2,6 +2,10 @@
 
 Запуск из **корня** репозитория.
 
+## HTTP-прокси (скачивания)
+
+Файл **`scripts/proxy.cfg`**: строки **`use_proxy=true|false`** и **`address=http://user:password@host:port`**. При `use_proxy=true` Python-скрипты скачивания и **curl** в `scripts/linux` (через `_vscodium_server_common.sh`) используют этот прокси; иначе прямой доступ. Альтернативный путь к конфигу: переменная **`VSCODIUM_PROXY_CFG`**.
+
 ## Сборка и запуск Axis2/C (Bash)
 
 Нужен **bash** и обычные Unix-утилиты (`find`, `mkdir`, …).

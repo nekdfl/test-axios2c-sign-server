@@ -17,6 +17,10 @@ import urllib.request
 from pathlib import Path
 from typing import Pattern
 
+from vscodium_common import install_urllib_proxy_from_cfg
+
+install_urllib_proxy_from_cfg()
+
 API = "https://api.github.com/repos/VSCodium/vscodium/releases/latest"
 UA = "vscodium-server-download/1.0"
 

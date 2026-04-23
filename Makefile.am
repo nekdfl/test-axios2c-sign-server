@@ -3,6 +3,7 @@ SUBDIRS = source/backend/include source/backend/services source/backend/src
 EXTRA_DIST = .gitattributes source/backend/axis2_repo \
   scripts/build.sh scripts/clean.sh scripts/run.sh \
   scripts/vscodium_common.py \
+  scripts/proxy.cfg \
   scripts/openvsx_download_vsix.py \
   scripts/vscodium_install_extensions_from_list.py \
   scripts/vscodium_desktop_download.py \

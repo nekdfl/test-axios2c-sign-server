@@ -4,8 +4,64 @@ import glob
 import os
 import shutil
 import sys
+import urllib.request
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
+
+
+def proxy_cfg_path() -> Path:
+    """Путь к `scripts/proxy.cfg` или переопределение через `VSCODIUM_PROXY_CFG`."""
+    env = os.environ.get("VSCODIUM_PROXY_CFG", "").strip()
+    if env:
+        return Path(env).expanduser().resolve()
+    return Path(__file__).resolve().parent / "proxy.cfg"
+
+
+def load_proxy_settings(cfg_path: Optional[Path] = None) -> Tuple[bool, Optional[str]]:
+    """
+    Читает `use_proxy` и `address` из proxy.cfg.
+    Возвращает (использовать_прокси, url_или_None). При use_proxy=false или пустом address — прямой доступ.
+    """
+    path = cfg_path or proxy_cfg_path()
+    if not path.is_file():
+        return False, None
+    use = False
+    address = ""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return False, None
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key, val = key.strip().lower(), val.strip().strip('"').strip("'")
+        if key == "use_proxy":
+            use = val.lower() in ("true", "yes", "1", "on")
+        elif key == "address":
+            address = val
+    if use and address:
+        return True, address
+    return False, None
+
+
+def install_urllib_proxy_from_cfg(cfg_path: Optional[Path] = None) -> Optional[str]:
+    """
+    Если в proxy.cfg задано use_proxy=true и непустой address, устанавливает urllib opener с ProxyHandler.
+    Иначе не меняет поведение urllib. Возвращает URL прокси при включении, иначе None.
+    """
+    use, addr = load_proxy_settings(cfg_path)
+    if not use or not addr:
+        return None
+    handlers = [
+        urllib.request.ProxyHandler({"http": addr, "https": addr}),
+    ]
+    opener = urllib.request.build_opener(*handlers)
+    urllib.request.install_opener(opener)
+    return addr
 
 
 def resolve_server_cli_path(cli: Path) -> Path:

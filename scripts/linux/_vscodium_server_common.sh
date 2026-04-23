@@ -2,6 +2,50 @@
 # Общие функции для скриптов vscodium-server (без Python).
 # shellcheck shell=bash
 
+# Каталог этого файла (scripts/linux); для proxy.cfg — scripts/proxy.cfg.
+_vscodium_common_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Читает scripts/proxy.cfg (или путь из VSCODIUM_PROXY_CFG): при use_proxy=true выставляет http_proxy/https_proxy для curl.
+vscodium_apply_proxy_cfg() {
+  local cfg
+  if [[ -n "${VSCODIUM_PROXY_CFG:-}" ]]; then
+    cfg="${VSCODIUM_PROXY_CFG/#\~/$HOME}"
+  else
+    cfg="${_vscodium_common_dir}/../proxy.cfg"
+  fi
+  unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+  [[ -f "$cfg" ]] || return 0
+  local use addr line k v klc vl
+  use=false
+  addr=
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%#*}"
+    line="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    [[ -z "$line" ]] && continue
+    [[ "$line" != *"="* ]] && continue
+    k="${line%%=*}"
+    v="${line#*=}"
+    k="$(echo "$k" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    v="$(echo "$v" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    klc=$(printf '%s' "$k" | tr '[:upper:]' '[:lower:]')
+    case "$klc" in
+      use_proxy)
+        vl=$(printf '%s' "$v" | tr '[:upper:]' '[:lower:]')
+        case "$vl" in
+          true | yes | 1 | on) use=true ;;
+          *) use=false ;;
+        esac
+        ;;
+      address) addr="$v" ;;
+    esac
+  done < "$cfg"
+  if [[ "$use" == true && -n "$addr" ]]; then
+    export http_proxy="$addr"
+    export https_proxy="$addr"
+  fi
+  return 0
+}
+
 vscodium_require_curl_jq() {
   command -v curl >/dev/null 2>&1 || {
     echo "Нужен curl (скачивание)." >&2
